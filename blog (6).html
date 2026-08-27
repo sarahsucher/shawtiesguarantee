@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shawties Guaranteed — Blog</title>
+<style>
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    padding: 1.5rem;
+    font-family: Helvetica, Arial, sans-serif;
+    background: #ffffff;
+    color: #000000;
+    line-height: 1.5;
+  }
+
+  .wrap { max-width: 700px; }
+
+  h1 {
+    margin: 0 0 0.25rem;
+    font-size: 4.5rem;
+    font-weight: bold;
+    line-height: 1;
+  }
+
+  .tagline {
+    margin: 0 0 1rem;
+    font-size: 0.95rem;
+    color: #333;
+  }
+
+  nav { margin-bottom: 1.5rem; }
+  nav a {
+    color: #0000EE;
+    text-decoration: underline;
+    margin-right: 1.25rem;
+    font-size: 1rem;
+  }
+  nav a:visited { color: #551A8B; }
+
+  hr {
+    border: none;
+    border-top: 1px solid #000;
+    margin: 1rem 0 1.5rem;
+  }
+
+  button.new-entry {
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 0.9rem;
+    background: #fff;
+    color: #000;
+    border: 1px solid #000;
+    padding: 0.35rem 0.75rem;
+    cursor: pointer;
+    margin-bottom: 1.5rem;
+  }
+  button.new-entry:hover { background: #eee; }
+
+  article.post {
+    text-align: left;
+    margin-bottom: 1.75rem;
+  }
+  article.post .meta {
+    font-size: 0.8rem;
+    color: #555;
+    margin-bottom: 0.2rem;
+  }
+  article.post h2 {
+    margin: 0 0 0.4rem;
+    font-size: 1.3rem;
+    font-weight: bold;
+  }
+  article.post h2 a {
+    color: #0000EE;
+    text-decoration: underline;
+  }
+  article.post h2 a:visited { color: #551A8B; }
+  article.post p.excerpt { margin: 0 0 0.3rem; color: #000; }
+  article.post .read-more {
+    color: #0000EE;
+    text-decoration: underline;
+    font-size: 0.9rem;
+  }
+  article.post .delete-btn {
+    background: none;
+    border: none;
+    color: #cc0000;
+    text-decoration: underline;
+    font-size: 0.85rem;
+    font-family: Helvetica, Arial, sans-serif;
+    cursor: pointer;
+    padding: 0;
+    margin-left: 0.75rem;
+  }
+  article.post .delete-btn:hover { color: #900; }
+
+  footer {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid #000;
+    font-size: 0.8rem;
+    color: #555;
+  }
+  footer a { color: #0000EE; text-decoration: underline; }
+
+  /* ---- Modal ---- */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    z-index: 100;
+  }
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: #fff;
+    border: 1px solid #000;
+    width: 100%;
+    max-width: 420px;
+    padding: 1.5rem;
+  }
+  .modal h3 { margin: 0 0 1rem; font-size: 1.1rem; font-weight: bold; }
+  .field { margin-bottom: 0.9rem; }
+  .field label { display: block; font-size: 0.85rem; margin-bottom: 0.25rem; }
+  .field input,
+  .field textarea {
+    width: 100%;
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 0.95rem;
+    padding: 0.4rem;
+    border: 1px solid #000;
+    background: #fff;
+    color: #000;
+  }
+  .field textarea { resize: vertical; min-height: 80px; }
+
+  .error-text {
+    color: #cc0000;
+    font-size: 0.8rem;
+    margin: -0.5rem 0 0.9rem;
+    display: none;
+  }
+  .error-text.show { display: block; }
+
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 1rem;
+  }
+  .btn-cancel {
+    background: #fff;
+    border: 1px solid #000;
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 0.85rem;
+    cursor: pointer;
+    padding: 0.4rem 0.8rem;
+  }
+  .btn-publish {
+    background: #000;
+    color: #fff;
+    border: 1px solid #000;
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 0.85rem;
+    cursor: pointer;
+    padding: 0.4rem 0.8rem;
+  }
+
+  .empty-state { color: #555; font-style: italic; display: none; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <h1>Shawties Guaranteed</h1>
+  <p class="tagline">Notes, thoughts, and things worth remembering</p>
+
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="#">Blog</a>
+    <a href="gallery.html">Gallery</a>
+  </nav>
+
+  <hr>
+
+  <button class="new-entry" onclick="openModal()">+ New Entry</button>
+
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <h3>Write a New Entry</h3>
+      <form id="postForm">
+        <div class="field">
+          <label for="postTitle">Title</label>
+          <input type="text" id="postTitle" required placeholder="Give your post a title">
+        </div>
+        <div class="field">
+          <label for="postBody">Entry</label>
+          <textarea id="postBody" required placeholder="Write what's on your mind..."></textarea>
+        </div>
+        <div class="field">
+          <label for="postPassword">Password</label>
+          <input type="password" id="postPassword" required placeholder="Enter password to post">
+        </div>
+        <div class="error-text" id="postError">Wrong password. Try again.</div>
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="btn-publish">Publish</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <main id="posts">
+    <div class="empty-state" id="emptyState">No entries yet — click "+ New Entry" to write your first one.</div>
+
+    <article class="post" data-post-id="sample-1">
+      <div class="meta">August 20, 2026</div>
+      <h2><a href="#">Why I Started Writing Again</a></h2>
+      <p class="excerpt">After a long break, I picked up a notebook and realized how much I'd missed the habit of putting thoughts into words. This post is about what brought me back, and what I hope to do differently this time.</p>
+      <a class="read-more" href="#">Read more</a>
+      <button class="delete-btn" onclick="deletePost('sample-1', true)">Delete</button>
+    </article>
+
+    <article class="post" data-post-id="sample-2">
+      <div class="meta">August 12, 2026</div>
+      <h2><a href="#">A Quiet Week in the Mountains</a></h2>
+      <p class="excerpt">No agenda, no itinerary — just a cabin, a few books, and a lot of walking. Here's what a week of doing nothing taught me about doing everything else.</p>
+      <a class="read-more" href="#">Read more</a>
+      <button class="delete-btn" onclick="deletePost('sample-2', true)">Delete</button>
+    </article>
+
+    <article class="post" data-post-id="sample-3">
+      <div class="meta">August 3, 2026</div>
+      <h2><a href="#">The Case for Slower Mornings</a></h2>
+      <p class="excerpt">Rushing out the door has become the default. I've been experimenting with a slower start to the day, and the results have surprised me.</p>
+      <a class="read-more" href="#">Read more</a>
+      <button class="delete-btn" onclick="deletePost('sample-3', true)">Delete</button>
+    </article>
+  </main>
+
+  <footer>
+    &copy; 2026 Shawties Guaranteed &middot; <a href="index.html">Home</a> &middot; <a href="#">Blog</a> &middot; <a href="gallery.html">Gallery</a>
+  </footer>
+
+</div>
+
+<script>
+  const POST_PASSWORD = "shawty2026"; // change this to whatever you want
+
+  const overlay = document.getElementById('modalOverlay');
+  const form = document.getElementById('postForm');
+  const main = document.getElementById('posts');
+  const errorText = document.getElementById('postError');
+  const emptyState = document.getElementById('emptyState');
+  const STORAGE_KEY = 'shawtiesGuaranteedPosts';
+  const HIDDEN_SAMPLES_KEY = 'shawtiesGuaranteedHiddenSamples';
+
+  function openModal() {
+    overlay.classList.add('open');
+    document.getElementById('postTitle').focus();
+  }
+  function closeModal() {
+    overlay.classList.remove('open');
+    form.reset();
+    errorText.classList.remove('show');
+  }
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) closeModal();
+  });
+
+  function formatDate(d) {
+    return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  }
+
+  function buildPostElement(post) {
+    const article = document.createElement('article');
+    article.className = 'post';
+    article.setAttribute('data-post-id', post.id);
+    article.innerHTML = `
+      <div class="meta">${post.date}</div>
+      <h2><a href="#">${post.title}</a></h2>
+      <p class="excerpt">${post.body}</p>
+      <a class="read-more" href="#">Read more</a>
+      <button class="delete-btn" onclick="deletePost('${post.id}', false)">Delete</button>
+    `;
+    return article;
+  }
+
+  function refreshEmptyState() {
+    const hasPosts = main.querySelectorAll('article.post').length > 0;
+    emptyState.style.display = hasPosts ? 'none' : 'block';
+  }
+
+  function hideDeletedSamples() {
+    const hidden = JSON.parse(localStorage.getItem(HIDDEN_SAMPLES_KEY) || '[]');
+    hidden.forEach((id) => {
+      const el = main.querySelector(`[data-post-id="${id}"]`);
+      if (el) el.remove();
+    });
+  }
+
+  function loadSavedPosts() {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    saved.forEach((post) => {
+      main.insertBefore(buildPostElement(post), main.children[1] || null);
+    });
+  }
+
+  function savePost(post) {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    saved.unshift(post);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+  }
+
+  function deletePost(id, isSample) {
+    const password = prompt('Enter password to delete this entry:');
+    if (password === null) return;
+    if (password !== POST_PASSWORD) {
+      alert('Wrong password.');
+      return;
+    }
+
+    if (isSample) {
+      const hidden = JSON.parse(localStorage.getItem(HIDDEN_SAMPLES_KEY) || '[]');
+      if (!hidden.includes(id)) hidden.push(id);
+      localStorage.setItem(HIDDEN_SAMPLES_KEY, JSON.stringify(hidden));
+    } else {
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      const remaining = saved.filter((p) => p.id !== id);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(remaining));
+    }
+
+    const el = main.querySelector(`[data-post-id="${id}"]`);
+    if (el) el.remove();
+    refreshEmptyState();
+  }
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const title = document.getElementById('postTitle').value.trim();
+    const body = document.getElementById('postBody').value.trim();
+    const password = document.getElementById('postPassword').value;
+
+    if (password !== POST_PASSWORD) {
+      errorText.classList.add('show');
+      return;
+    }
+    if (!title || !body) return;
+
+    const post = { id: 'p' + Date.now(), title, body, date: formatDate(new Date()) };
+    main.insertBefore(buildPostElement(post), main.children[1] || null);
+    savePost(post);
+    closeModal();
+    refreshEmptyState();
+  });
+
+  hideDeletedSamples();
+  loadSavedPosts();
+  refreshEmptyState();
+</script>
+
+</body>
+</html>
